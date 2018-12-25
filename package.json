@@ -1,6 +1,6 @@
 {
   "name": "z-games-lost-cities",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Lost cities game module for tiny board games portal",
   "main": "dist/index.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "url": "git+https://github.com/zinovik/z-games-lost-cities.git"
   },
   "author": "Max Zinovik",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/zinovik/z-games-lost-cities/issues"
   },
