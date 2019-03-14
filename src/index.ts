@@ -15,15 +15,16 @@ const INVESTMENT_CARDS_NUMBER = 3;
 const START_CARDS_NUMBER = 8;
 
 export interface LostCitiesData extends BaseGameData {
-  cards: number[];
-  discards: number[][];
+  cards: LostCitiesCard[];
+  discards: LostCitiesCard[];
   cardsLeft: number;
   players: LostCitiesPlayer[];
 }
 
 export interface LostCitiesPlayer extends BaseGamePlayer {
   cardsHand: LostCitiesCard[];
-  cardsExpeditions: number[][];
+  cardsHandCount: number;
+  cardsExpeditions: LostCitiesCard[];
   points: number;
 }
 
@@ -66,29 +67,36 @@ export class LostCities extends BaseGame {
     let { players } = gameData;
 
     for (let i = 0; i < EXPEDITIONS_NUMBER; i++) {
-      cards.push();
       for (let j = MIN_COST; i < MAX_COST + 1; j++) {
+        cards.push({
+          cost: 0,
+          expedition: i,
+        });
+      }
 
+      for (let k = 0; k < INVESTMENT_CARDS_NUMBER; k++) {
+        cards.push({
+          cost: 0,
+          expedition: i,
+        });
       }
     }
 
-    for (let i = MIN_NUMBER; i <= MAX_NUMBER; i++) {
-      cards.push(i);
-    }
-
     players = players.map(player => {
+      const cardsHand: LostCitiesCard[] = [];
+
+      for (let i = 0; i < START_CARDS_NUMBER; i++) {
+        cardsHand.push(cards.splice(Math.floor(Math.random() * cards.length), 1)[0]);
+      }
+
       return {
         ...player,
-        cardsHand: [],
-        cardsDestination: [],
+        cardsHand,
+        cardsHandCount: START_CARDS_NUMBER,
+        cardsExpeditions: [],
         points: 0,
-        place: 0,
       };
     });
-
-    for (let i = 0; i < EXCESS_CARDS_NUMBER; i++) {
-      cards.splice(Math.floor(Math.random() * cards.length), 1);
-    }
 
     const cardsLeft = cards.length;
 
@@ -111,8 +119,7 @@ export class LostCities extends BaseGame {
       if (player.id !== userId) {
         gameData.players[index] = {
           ...gameData.players[index],
-          chips: 0,
-          points: 0,
+          cardsHand: [],
         };
       }
     });
@@ -127,26 +134,33 @@ export class LostCities extends BaseGame {
     const gameData: LostCitiesData = JSON.parse(gameDataJSON);
     const move: LostCitiesMove = JSON.parse(moveJSON);
 
-    const { cards } = gameData;
-    let { currentCard, currentCardCost, cardsLeft, players } = gameData;
+    const { cards, discards, cardsLeft } = gameData;
+    let { players } = gameData;
+    const { card, discard, takeExpedition } = move;
 
     const playerNumber = this.getPlayerNumber({ userId, players });
 
-    if (move.takeCard) {
-      players[playerNumber].cards.push(currentCard);
-      players[playerNumber].cards.sort((a, b) => a - b);
-      players[playerNumber].chips += currentCardCost;
+    // TODO checkMove();
 
-      [currentCard] = cards.splice(Math.floor(Math.random() * cards.length), 1);
-      cardsLeft = cards.length;
-      currentCardCost = 0;
+    players[playerNumber].cardsHand = players[playerNumber].cardsHand.filter(currentCard =>
+      currentCard.cost !== card.cost && currentCard.expedition !== card.expedition);
+
+    if (discard) {
+      gameData.discards.push(card);
     } else {
-      if (!players[playerNumber].chips) {
-        throw new Error('You have no chips to pay');
-      }
+      players[playerNumber].cardsExpeditions.push(card);
+    }
 
-      players[playerNumber].chips--;
-      currentCardCost++;
+    if (takeExpedition === null) {
+      players[playerNumber].cardsHand.push(cards.splice(Math.floor(Math.random() * cards.length), 1)[0]);
+    } else {
+      let cardIndex = 0;
+      discards.forEach((currentCard, index) => {
+        if (currentCard.expedition === takeExpedition) {
+          cardIndex = index;
+        }
+      });
+      players[playerNumber].cardsHand.push(discards.splice(cardIndex, 1)[0]);
     }
 
     players[playerNumber].points = this.getPointsForPlayer(players[playerNumber]);
@@ -168,9 +182,7 @@ export class LostCities extends BaseGame {
         ...gameData,
         cards,
         players,
-        currentCard,
-        currentCardCost,
-        cardsLeft,
+        cardsLeft: cards.length,
       }),
       nextPlayersIds,
     };
@@ -194,15 +206,15 @@ export class LostCities extends BaseGame {
     let points = 0;
     let lastCard = 0;
 
-    player.cards.forEach(card => {
-      if (card !== lastCard + 1) {
-        points += card;
+    player.cardsHand.forEach(card => {
+      if (card.cost !== lastCard + 1) {
+        points += card.cost;
       }
 
-      lastCard = card;
+      lastCard = card.cost;
     });
 
-    return points - player.chips;
+    return points;
   }
 
   private updatePlayerPlaces = (players: LostCitiesPlayer[]): LostCitiesPlayer[] => {
