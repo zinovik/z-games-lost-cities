@@ -39,6 +39,8 @@ export interface LostCitiesCard {
   expedition: number;
 }
 
+export const LOST_CITIES = 'Lost Cities';
+
 export class LostCities extends BaseGame {
   private static instance: LostCities;
 
