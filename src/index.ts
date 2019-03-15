@@ -69,7 +69,7 @@ export class LostCities extends BaseGame {
     let { players } = gameData;
 
     for (let i = 0; i < EXPEDITIONS_NUMBER; i++) {
-      for (let j = MIN_COST; i < MAX_COST + 1; j++) {
+      for (let j = MIN_COST; j < MAX_COST + 1; j++) {
         cards.push({
           cost: 0,
           expedition: i,
