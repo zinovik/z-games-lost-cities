@@ -1,45 +1,25 @@
+import { BaseGame } from 'z-games-base-game';
+
 import {
-  BaseGame,
-  BaseGameData,
-  BaseGameMove,
-  BaseGamePlayer,
-} from 'z-games-base-game';
+  ILostCitiesData,
+  ILostCitiesPlayer,
+  ILostCitiesMove,
+  ILostCitiesCard,
+} from './interfaces';
+import {
+  NAME,
+  NAME_WORK,
+  PLAYERS_MIN,
+  PLAYERS_MAX,
+  EXPEDITIONS_NUMBER,
+  MIN_COST,
+  MAX_COST,
+  INVESTMENT_CARDS_NUMBER,
+  START_CARDS_NUMBER,
+} from './constants';
 
-const PLAYERS_MIN = 1; // TODO: 2
-const PLAYERS_MAX = 2;
-
-const EXPEDITIONS_NUMBER = 5;
-const MIN_COST = 2;
-const MAX_COST = 10;
-const INVESTMENT_CARDS_NUMBER = 3;
-const START_CARDS_NUMBER = 8;
-
-export interface LostCitiesData extends BaseGameData {
-  cards: LostCitiesCard[];
-  discards: LostCitiesCard[];
-  cardsLeft: number;
-  players: LostCitiesPlayer[];
-}
-
-export interface LostCitiesPlayer extends BaseGamePlayer {
-  cardsHand: LostCitiesCard[];
-  cardsHandCount: number;
-  cardsExpeditions: LostCitiesCard[];
-  points: number;
-}
-
-export interface LostCitiesMove extends BaseGameMove {
-  card: LostCitiesCard;
-  discard: boolean;
-  takeExpedition: number;
-}
-
-export interface LostCitiesCard {
-  cost: number;
-  expedition: number;
-}
-
-export const LOST_CITIES = 'Lost Cities';
+export * from './interfaces';
+export * from './constants';
 
 export class LostCities extends BaseGame {
   private static instance: LostCities;
@@ -48,8 +28,16 @@ export class LostCities extends BaseGame {
     return this.instance || (this.instance = new this());
   }
 
+  public getName = (): string => {
+    return NAME;
+  }
+
+  public getNameWork = (): string => {
+    return NAME_WORK;
+  }
+
   public getNewGame = (): { playersMax: number, playersMin: number, gameData: string } => {
-    const gameData: LostCitiesData = {
+    const gameData: ILostCitiesData = {
       cards: [],
       discards: [],
       cardsLeft: 0,
@@ -64,14 +52,14 @@ export class LostCities extends BaseGame {
   }
 
   public startGame = (gameDataJSON: string): { gameData: string, nextPlayersIds: string[] } => {
-    const gameData: LostCitiesData = JSON.parse(gameDataJSON);
+    const gameData: ILostCitiesData = JSON.parse(gameDataJSON);
     const { cards } = gameData;
     let { players } = gameData;
 
     for (let i = 0; i < EXPEDITIONS_NUMBER; i++) {
       for (let j = MIN_COST; j < MAX_COST + 1; j++) {
         cards.push({
-          cost: 0,
+          cost: j,
           expedition: i,
         });
       }
@@ -85,7 +73,7 @@ export class LostCities extends BaseGame {
     }
 
     players = players.map(player => {
-      const cardsHand: LostCitiesCard[] = [];
+      const cardsHand: ILostCitiesCard[] = [];
 
       for (let i = 0; i < START_CARDS_NUMBER; i++) {
         cardsHand.push(cards.splice(Math.floor(Math.random() * cards.length), 1)[0]);
@@ -115,8 +103,9 @@ export class LostCities extends BaseGame {
   }
 
   public parseGameDataForUser = ({ gameData: gameDataJSON, userId }: { gameData: string, userId: string }): string => {
-    const gameData: LostCitiesData = JSON.parse(gameDataJSON);
+    const gameData: ILostCitiesData = JSON.parse(gameDataJSON);
 
+    // remove cards in decks except the latest
     gameData.players.forEach((player, index) => {
       if (player.id !== userId) {
         gameData.players[index] = {
@@ -129,20 +118,31 @@ export class LostCities extends BaseGame {
     return JSON.stringify({ ...gameData, cards: [] });
   }
 
+  public checkMove = ({ gameData: gameDataJSON, move: moveJSON, userId }: {
+    gameData: string,
+    move: string,
+    userId: string,
+  }): boolean => {
+    // TODO!
+    return true;
+  }
+
   public makeMove = ({ gameData: gameDataJSON, move: moveJSON, userId }: { gameData: string, move: string, userId: string }): {
     gameData: string,
     nextPlayersIds: string[],
   } => {
-    const gameData: LostCitiesData = JSON.parse(gameDataJSON);
-    const move: LostCitiesMove = JSON.parse(moveJSON);
+    if (!this.checkMove({ gameData: gameDataJSON, move: moveJSON, userId })) {
+      throw new Error('Impossible move!');
+    }
+
+    const gameData: ILostCitiesData = JSON.parse(gameDataJSON);
+    const move: ILostCitiesMove = JSON.parse(moveJSON);
 
     const { cards, discards, cardsLeft } = gameData;
     let { players } = gameData;
     const { card, discard, takeExpedition } = move;
 
     const playerNumber = this.getPlayerNumber({ userId, players });
-
-    // TODO checkMove();
 
     players[playerNumber].cardsHand = players[playerNumber].cardsHand.filter(currentCard =>
       currentCard.cost !== card.cost && currentCard.expedition !== card.expedition);
@@ -204,7 +204,7 @@ export class LostCities extends BaseGame {
     return rules;
   }
 
-  private getPointsForPlayer = (player: LostCitiesPlayer): number => {
+  private getPointsForPlayer = (player: ILostCitiesPlayer): number => {
     let points = 0;
     let lastCard = 0;
 
@@ -219,7 +219,7 @@ export class LostCities extends BaseGame {
     return points;
   }
 
-  private updatePlayerPlaces = (players: LostCitiesPlayer[]): LostCitiesPlayer[] => {
+  private updatePlayerPlaces = (players: ILostCitiesPlayer[]): ILostCitiesPlayer[] => {
     const playersPlaces: Array<{ id: string, points: number }> = [];
 
     players.forEach(player => {
@@ -244,7 +244,7 @@ export class LostCities extends BaseGame {
     });
   }
 
-  private getPlayerNumber = ({ userId, players }: { userId: string, players: LostCitiesPlayer[] }): number => {
+  private getPlayerNumber = ({ userId, players }: { userId: string, players: ILostCitiesPlayer[] }): number => {
     let playerNumber = 0;
 
     players.forEach((player, index) => {
@@ -256,3 +256,10 @@ export class LostCities extends BaseGame {
     return playerNumber;
   }
 }
+
+export const getCardShape = (numberPropType: object): object => {
+  return {
+    cost: numberPropType,
+    expedition: numberPropType,
+  };
+};
