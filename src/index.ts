@@ -107,7 +107,7 @@ export class LostCities extends BaseGame {
 
     gameData.players.forEach((player, index) => {
       if (player.id === userId) {
-        return 
+        return;
       }
 
       gameData.players[index] = {
@@ -138,9 +138,10 @@ export class LostCities extends BaseGame {
     const gameData: ILostCitiesData = JSON.parse(gameDataJSON);
     const move: ILostCitiesMove = JSON.parse(moveJSON);
 
-    const { cards, discards, cardsLeft } = gameData;
-    let { players } = gameData;
-    const { card, isDiscard, takeExpedition } = move;
+    // const { cards, discards, cardsLeft } = gameData;
+    const { players } = gameData;
+    // const { card, isDiscard, takeExpedition } = move;
+    const { card, isDiscard } = move;
 
     const playerNumber = this.getPlayerNumber({ userId, players });
 
