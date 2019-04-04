@@ -4,6 +4,6 @@ import { ILostCitiesCard } from './';
 
 export interface ILostCitiesMove extends IBaseGameMove {
   card: ILostCitiesCard;
-  discard: boolean;
+  isDiscard: boolean;
   takeExpedition: number;
 }
