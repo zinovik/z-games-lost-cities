@@ -105,17 +105,29 @@ export class LostCities extends BaseGame {
   public parseGameDataForUser = ({ gameData: gameDataJSON, userId }: { gameData: string, userId: string }): string => {
     const gameData: ILostCitiesData = JSON.parse(gameDataJSON);
 
-    // remove cards in decks except the latest
     gameData.players.forEach((player, index) => {
-      if (player.id !== userId) {
-        gameData.players[index] = {
-          ...gameData.players[index],
-          cardsHand: [],
-        };
+      if (player.id === userId) {
+        return 
       }
+
+      gameData.players[index] = {
+        ...gameData.players[index],
+        cardsHand: [],
+      };
     });
 
-    return JSON.stringify({ ...gameData, cards: [] });
+    const discards = [...gameData.discards].reverse();
+    const discardsFiltered = [];
+
+    for (let i = 0; i < EXPEDITIONS_NUMBER; i++) {
+      const expeditionCard = discards.find(card => card.expedition === i);
+
+      if (expeditionCard) {
+        discardsFiltered.push(expeditionCard);
+      }
+    }
+
+    return JSON.stringify({ ...gameData, discards: discardsFiltered, cards: [] });
   }
 
   public checkMove = ({ gameData: gameDataJSON, move: moveJSON, userId }: {
@@ -123,7 +135,26 @@ export class LostCities extends BaseGame {
     move: string,
     userId: string,
   }): boolean => {
-    // TODO!
+    const gameData: ILostCitiesData = JSON.parse(gameDataJSON);
+    const move: ILostCitiesMove = JSON.parse(moveJSON);
+
+    const { cards, discards, cardsLeft } = gameData;
+    let { players } = gameData;
+    const { card, isDiscard, takeExpedition } = move;
+
+    const playerNumber = this.getPlayerNumber({ userId, players });
+
+    if (!isDiscard) {
+      const lastExpeditionCard = [...players[playerNumber].cardsExpeditions].reverse().find(
+        expeditionCard => expeditionCard.expedition === card.expedition,
+      );
+
+      if (lastExpeditionCard && card.cost < lastExpeditionCard.cost) {
+        return false;
+      }
+    }
+    // TODO Check card in the hand
+    // TODO Check takeExpedition
     return true;
   }
 
@@ -140,14 +171,21 @@ export class LostCities extends BaseGame {
 
     const { cards, discards, cardsLeft } = gameData;
     let { players } = gameData;
-    const { card, discard, takeExpedition } = move;
+    const { card, isDiscard, takeExpedition } = move;
 
     const playerNumber = this.getPlayerNumber({ userId, players });
 
-    players[playerNumber].cardsHand = players[playerNumber].cardsHand.filter(currentCard =>
-      currentCard.cost !== card.cost && currentCard.expedition !== card.expedition);
+    let cardCutOut = false;
+    players[playerNumber].cardsHand = players[playerNumber].cardsHand.filter(currentCard => {
+      if (!cardCutOut && currentCard.cost === card.cost && currentCard.expedition === card.expedition) {
+        cardCutOut = true;
+        return false;
+      }
 
-    if (discard) {
+      return true;
+    });
+
+    if (isDiscard) {
       gameData.discards.push(card);
     } else {
       players[playerNumber].cardsExpeditions.push(card);
@@ -169,7 +207,7 @@ export class LostCities extends BaseGame {
 
     const nextPlayersIds = [];
 
-    if (cardsLeft) {
+    if (cards.length) {
       if (playerNumber >= players.length - 1) {
         nextPlayersIds.push(players[0].id);
       } else {
@@ -206,14 +244,31 @@ export class LostCities extends BaseGame {
 
   private getPointsForPlayer = (player: ILostCitiesPlayer): number => {
     let points = 0;
-    let lastCard = 0;
 
-    player.cardsHand.forEach(card => {
-      if (card.cost !== lastCard + 1) {
-        points += card.cost;
-      }
+    const expeditions: number[][] = [];
 
-      lastCard = card.cost;
+    for (let i = 0; i < EXPEDITIONS_NUMBER; i++) {
+      expeditions.push([]);
+    }
+
+    player.cardsExpeditions.forEach(card => {
+      expeditions[card.expedition].push(card.cost);
+    });
+
+    expeditions.forEach(expeditionCards => {
+      let multiplier = 1;
+      let expeditionPoints = 0;
+
+      expeditionCards.forEach(card => {
+        if (card) {
+          expeditionPoints += card;
+        } else {
+          multiplier++;
+        }
+      });
+
+      points += expeditionCards.length ? (expeditionPoints - 20) * multiplier : 0;
+      points += expeditionCards.length >= 8 ? 20 : 0;
     });
 
     return points;
