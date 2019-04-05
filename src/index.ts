@@ -42,6 +42,7 @@ export class LostCities extends BaseGame {
       discards: [],
       cardsLeft: 0,
       players: [],
+      discardsCount: [],
     };
 
     return {
@@ -82,7 +83,6 @@ export class LostCities extends BaseGame {
       return {
         ...player,
         cardsHand,
-        cardsHandCount: START_CARDS_NUMBER,
         cardsExpeditions: [],
         points: 0,
       };
@@ -218,12 +218,18 @@ export class LostCities extends BaseGame {
       players = this.updatePlayerPlaces(players);
     }
 
+    const discardsCount = new Array(EXPEDITIONS_NUMBER).fill(0);
+    discards.forEach(discard => {
+      discardsCount[discard.expedition] = discardsCount[discard.expedition] + 1;
+    });
+
     return {
       gameData: JSON.stringify({
         ...gameData,
         cards,
         players,
         cardsLeft: cards.length,
+        discardsCount,
       }),
       nextPlayersIds,
     };
@@ -282,7 +288,7 @@ export class LostCities extends BaseGame {
       playersPlaces.push({ id: player.id, points: player.points });
     });
 
-    playersPlaces.sort((a, b) => a.points - b.points);
+    playersPlaces.sort((a, b) => b.points - a.points);
 
     return players.map(player => {
       let place = 0;

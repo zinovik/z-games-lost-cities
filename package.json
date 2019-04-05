@@ -1,6 +1,6 @@
 {
   "name": "z-games-lost-cities",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "description": "Lost cities game module for tiny board games portal",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
