@@ -176,21 +176,15 @@ export class LostCities extends BaseGame {
 
     const playerNumber = this.getPlayerNumber({ userId, players });
 
-    let cardCutOut = false;
+    let isCardCutOut = false;
     players[playerNumber].cardsHand = players[playerNumber].cardsHand.filter(currentCard => {
-      if (!cardCutOut && currentCard.cost === card.cost && currentCard.expedition === card.expedition) {
-        cardCutOut = true;
+      if (!isCardCutOut && currentCard.cost === card.cost && currentCard.expedition === card.expedition) {
+        isCardCutOut = true;
         return false;
       }
 
       return true;
     });
-
-    if (isDiscard) {
-      gameData.discards.push(card);
-    } else {
-      players[playerNumber].cardsExpeditions.push(card);
-    }
 
     if (takeExpedition === null) {
       players[playerNumber].cardsHand.push(cards.splice(Math.floor(Math.random() * cards.length), 1)[0]);
@@ -202,6 +196,12 @@ export class LostCities extends BaseGame {
         }
       });
       players[playerNumber].cardsHand.push(discards.splice(cardIndex, 1)[0]);
+    }
+
+    if (isDiscard) {
+      gameData.discards.push(card);
+    } else {
+      players[playerNumber].cardsExpeditions.push(card);
     }
 
     players[playerNumber].points = this.getPointsForPlayer(players[playerNumber]);
@@ -238,13 +238,45 @@ export class LostCities extends BaseGame {
   public getRules = (): string[] => {
     const rules = [];
 
-    rules.push('Lost Cities is a 60-card card game, designed in 1999 by game designer Reiner Knizia and published by several publishers. The objective of the game is to mount profitable expeditions to one or more of the five lost cities (the Himalayas, the Brazilian Rain Forest, the Desert Sands, the Ancient Volcanos and Neptune\'s Realm). The game was originally intended as a 2-player game, but rule variants have been contributed by fans to allow 1 or 2 further players, causing Reiner Knizia himself to later provide semi-official 4-player rules.');
+    rules.push('Objective of the game');
 
-    rules.push('Lost Cities is a fast-moving game, with players playing or discarding, and then replacing, a single card each turn. Cards represent progress on one of the five color-coded expeditions. Players must decide, during the course of the game, how many of these expeditions to actually embark upon. Card-play rules are quite straightforward, but because players can only move forward on an expedition (by playing cards which are higher-numbered than those already played), making the right choice in a given game situation can be quite difficult. An expedition that has been started will earn points according to how much progress has been made when the game ends, and after three rounds, the player with the highest total score wins the game. Each expedition that is started but not thoroughly charted incurs a negative point penalty (investment costs).');
+    rules.push('You are an adventurer trying to succeed in up to five expeditions (represented by five colors). To make progress, you will lay the corresponding cards in ascending order. Investment cards will let you double, triple, quadruple your earnings. But beware! Starting an expedition costs points and you may fail to cover your costs!');
 
-    rules.push('Interaction between players is indirect, in that one cannot directly impact another player\'s expeditions. However, since players can draw from the common discard piles, they are free to make use of opposing discards. Additionally, since the available cards for a given expedition are finite, progress made by an opponent in a given color can lead to difficulty making progress in that same color.');
+    rules.push('Player\'s turn');
 
-    rules.push('The game\'s board, while designed to supplement the theme, is optional and consists only of simple marked areas where players place discards. If Lost Cities had four expeditions instead of five, it could be played with a standard deck of playing cards. When doing so, the face cards would represent investment cards, with numbered cards two through ten serving as the expedition progress cards.');
+    rules.push('Every player starts with 8 cards in hand. A player\'s turn is very simple: play a card, draw a card');
+
+    rules.push('How to play a card?');
+
+    rules.push('You can play a card in two ways: 1) by laying it down on an expedition. The card will stay there for the rest of the game. 2) OR by discarding it on the matching discard pile. The card may be picked later by either player.');
+
+    rules.push('How to lay a card?');
+
+    rules.push('Laying a card on an expedition must be done in ascending order. Cards do not need to be consecutive.');
+
+    rules.push('Discarding a card');
+
+    rules.push('If you do not want to lay a card on an expedition, you can discard one instead. There is one discard pile per color.');
+
+    rules.push('Drawing a card');
+
+    rules.push('Once you have played a card, you must draw another one: 1) from the main deck,; 2) OR from any discard pile. You can not draw a card that you have discarded in the same turn!');
+
+    rules.push('Investment cards (X)');
+
+    rules.push('Investment cards are represented by the sign X. They must be laid before an expedition is started, that is before any value card on the same expedition. They will double, triple, quadruple your earnings or losses (for 1, 2, or 3 investment cards).');
+
+    rules.push('End of the game');
+
+    rules.push('When a player draws the last card of the deck, the game ends immediately.');
+
+    rules.push('Scoring');
+
+    rules.push('Each expedition which has at least one card on it costs 20 points. This cost is substracted from the total value of the cards on that expedition. This total is then multiplied if there are investment cards on the expedition (x2, x3 or x4). If the expedition has at least 8 cards, a (non multiplied) bonus of 20 points is given. The final score of a player is the total of points for the five expeditions. It can be negative!');
+
+    rules.push('Deck content');
+
+    rules.push('In each color, there are: ONE card for each value between 2 and 10 and THREE investment cards (X).');
 
     return rules;
   }
