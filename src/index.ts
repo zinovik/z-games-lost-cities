@@ -36,6 +36,10 @@ export class LostCities extends BaseGame {
     return NAME_WORK;
   }
 
+  public getOptionsVariants = (): Array<{ name: string, values: string[] }> => {
+    return [];
+  }
+
   public getNewGame = (): { playersMax: number, playersMin: number, gameData: string } => {
     const gameData: ILostCitiesData = {
       cards: [],
@@ -43,6 +47,7 @@ export class LostCities extends BaseGame {
       cardsLeft: 0,
       players: [],
       discardsCount: [],
+      options: [],
     };
 
     return {
