@@ -37,7 +37,9 @@ export class LostCities extends BaseGame {
   }
 
   public getOptionsVariants = (): Array<{ name: string, values: string[] }> => {
-    return [];
+    return [
+      ...super.getOptionsVariants(),
+    ];
   }
 
   public getNewGame = (): { playersMax: number, playersMin: number, gameData: string } => {
@@ -47,7 +49,10 @@ export class LostCities extends BaseGame {
       cardsLeft: 0,
       players: [],
       discardsCount: [],
-      options: [],
+      options: [{
+        name: 'Max Time',
+        value: '1 hour',
+      }],
     };
 
     return {
