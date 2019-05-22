@@ -1,7 +1,7 @@
 export const NAME = 'Lost Cities';
 export const NAME_WORK = 'lost-cities';
 
-export const PLAYERS_MIN = 1; // TODO: 2
+export const PLAYERS_MIN = 2;
 export const PLAYERS_MAX = 2;
 
 export const EXPEDITIONS_NUMBER = 5;
