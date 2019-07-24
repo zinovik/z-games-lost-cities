@@ -1,4 +1,4 @@
-import { LostCities } from '../';
+import { LostCities } from '../src';
 
 test('create new game instance', () => {
   const lostCities = LostCities.Instance;

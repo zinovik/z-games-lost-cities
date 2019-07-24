@@ -1,8 +1,6 @@
-import { IBaseGameMove } from 'z-games-base-game';
-
 import { ILostCitiesCard } from './';
 
-export interface ILostCitiesMove extends IBaseGameMove {
+export interface ILostCitiesMove {
   card: ILostCitiesCard;
   isDiscard: boolean;
   takeExpedition: number;
