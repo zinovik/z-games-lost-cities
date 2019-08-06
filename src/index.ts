@@ -136,7 +136,15 @@ export class LostCities extends BaseGame {
     return JSON.stringify({ ...gameData, discards: discardsFiltered, cards: [] });
   };
 
-  public checkMove = ({ gameData: gameDataJSON, move: moveJSON, userId }: { gameData: string; move: string; userId: string }): boolean => {
+  public checkMove = ({
+    gameData: gameDataJSON,
+    move: moveJSON,
+    userId,
+  }: {
+    gameData: string;
+    move: string;
+    userId: string;
+  }): boolean => {
     const gameData: ILostCitiesData = JSON.parse(gameDataJSON);
     const move: ILostCitiesMove = JSON.parse(moveJSON);
 
@@ -251,9 +259,10 @@ export class LostCities extends BaseGame {
     rules.push('Objective of the game');
 
     rules.push(
-      'You are an adventurer trying to succeed in up to five expeditions (represented by five colors). To make progress, you will lay the ' +
-        'corresponding cards in ascending order. Investment cards will let you double, triple, quadruple your earnings. But beware! Starting ' +
-        'an expedition costs points and you may fail to cover your costs!',
+      'You are an adventurer trying to succeed in up to five expeditions (represented by five colors). To make ' +
+        'progress, you will lay the corresponding cards in ascending order. Investment cards will let you double, ' +
+        'triple, quadruple your earnings. But beware! Starting an expedition costs points and you may fail to cover ' +
+        'your costs!',
     );
 
     rules.push("Player's turn");
@@ -263,8 +272,9 @@ export class LostCities extends BaseGame {
     rules.push('How to play a card?');
 
     rules.push(
-      'You can play a card in two ways: 1) by laying it down on an expedition. The card will stay there for the rest of the game. 2) OR by ' +
-        'discarding it on the matching discard pile. The card may be picked later by either player.',
+      'You can play a card in two ways: 1) by laying it down on an expedition. The card will stay there for the ' +
+        'rest of the game. 2) OR by discarding it on the matching discard pile. The card may be picked later by ' +
+        'either player.',
     );
 
     rules.push('How to lay a card?');
@@ -273,20 +283,24 @@ export class LostCities extends BaseGame {
 
     rules.push('Discarding a card');
 
-    rules.push('If you do not want to lay a card on an expedition, you can discard one instead. There is one discard pile per color.');
+    rules.push(
+      'If you do not want to lay a card on an expedition, you can discard one instead. There is one discard pile ' +
+        'per color.',
+    );
 
     rules.push('Drawing a card');
 
     rules.push(
-      'Once you have played a card, you must draw another one: 1) from the main deck,; 2) OR from any discard pile. You can not draw a card ' +
-        'that you have discarded in the same turn!',
+      'Once you have played a card, you must draw another one: 1) from the main deck,; 2) OR from any discard pile. ' +
+        'You can not draw a card that you have discarded in the same turn!',
     );
 
     rules.push('Investment cards (X)');
 
     rules.push(
-      'Investment cards are represented by the sign X. They must be laid before an expedition is started, that is before any value card on the ' +
-        'same expedition. They will double, triple, quadruple your earnings or losses (for 1, 2, or 3 investment cards).',
+      'Investment cards are represented by the sign X. They must be laid before an expedition is started, that is ' +
+        'before any value card on the same expedition. They will double, triple, quadruple your earnings or losses ' +
+        '(for 1, 2, or 3 investment cards).',
     );
 
     rules.push('End of the game');
@@ -296,10 +310,10 @@ export class LostCities extends BaseGame {
     rules.push('Scoring');
 
     rules.push(
-      'Each expedition which has at least one card on it costs 20 points. This cost is substracted from the total value of the cards on that ' +
-        'expedition. This total is then multiplied if there are investment cards on the expedition (x2, x3 or x4). If the expedition has at ' +
-        'least 8 cards, a (non multiplied) bonus of 20 points is given. The final score of a player is the total of points for the five ' +
-        'expeditions. It can be negative!',
+      'Each expedition which has at least one card on it costs 20 points. This cost is substracted from the total ' +
+        'value of the cards on that expedition. This total is then multiplied if there are investment cards on the ' +
+        'expedition (x2, x3 or x4). If the expedition has at least 8 cards, a (non multiplied) bonus of 20 points ' +
+        'is given. The final score of a player is the total of points for the five expeditions. It can be negative!',
     );
 
     rules.push('Deck content');
